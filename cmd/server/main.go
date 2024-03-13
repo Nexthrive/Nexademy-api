@@ -11,6 +11,7 @@ import (
 	"nexademy/internal/config"
 	"nexademy/internal/errors"
 	"nexademy/internal/healthcheck"
+	"nexademy/internal/kelas"
 	"nexademy/pkg/accesslog"
 	"nexademy/pkg/dbcontext"
 	"nexademy/pkg/log"
@@ -98,6 +99,11 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		auth.NewService(cfg.JWTSigningKey, cfg.JWTExpiration, logger),
 		logger,
 	)
+
+	kelas.RegisterHandlers(rg.Group(""),
+	kelas.NewService(kelas.NewRepo(db, logger), logger),
+	authHandler, logger,
+)
 
 	return router
 }
