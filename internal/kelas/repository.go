@@ -5,10 +5,12 @@ import (
 	"nexademy/internal/entity"
 	"nexademy/pkg/dbcontext"
 	"nexademy/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 type Repository interface {
-	Get(ctx context.Context, id string) (entity.Kelas, error)
+	Get(ctx context.Context, id_kelas string) (entity.Kelas, error)
 	Query(ctx context.Context) ([]entity.Kelas, error)
 	Create(ctx context.Context, kelas entity.Kelas) error
 }
@@ -28,10 +30,13 @@ func (r repository) Create(ctx context.Context, kelas entity.Kelas) error {
 }
 
 // Get implements Repository.
-func (r repository) Get(ctx context.Context, id string) (entity.Kelas, error) {
+func (r repository) Get(ctx context.Context, id_kelas string) (entity.Kelas, error) {
 	var kelas entity.Kelas
-	err := r.db.With(ctx).Select().Model(id, &kelas)
-	return kelas, err
+	err := r.db.With(ctx).Select().From("kelas").Where(dbx.HashExp{"id_kelas": id_kelas}).One(&kelas)
+	if err != nil {
+			return kelas, err
+	}
+	return kelas, nil
 }
 
 // Query implements Repository.
