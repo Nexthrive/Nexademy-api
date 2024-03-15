@@ -100,6 +100,7 @@ func (s service) signup(ctx context.Context, req request.CreateUser) (response.E
 		Email:      req.Email,
 		No_telp:    req.No_telp,
 		Gender:     req.Gender,
+		Religion:   req.Religion,
 	})
 	if err != nil {
 		return response.EmptyResponse{}, err
@@ -154,7 +155,7 @@ func (s service) Update(ctx context.Context, id string, req request.UpdateUser) 
 		Name:       req.Name,
 		Email:      user.Email,
 		No_telp:    req.No_telp,
-		Gender:     req.Religion,
+		Gender:     user.Gender,
 		Nis:        user.Nis,
 		Passphrase: user.Passphrase,
 		Religion:   req.Religion,
