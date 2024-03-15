@@ -15,6 +15,8 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/mapel", res.query)
 	r.Get("/mapel/<id>", res.get)
 	r.Post("/mapel", res.create)
+	r.Put("/mapel/<id>", res.UpdateMapel)
+	r.Delete("/mapel/<id>", res.delete)
 }
 
 type resource struct {
@@ -58,6 +60,27 @@ func (r resource) create(c *routing.Context) error {
 	return c.WriteWithStatus(response, http.StatusCreated)
 }
 
+func (r resource) UpdateMapel(c *routing.Context) error {
+	ID := c.Param("id")
 
+	var updateMapelReq request.UpdateMapelRequest
+	if err := c.Read(&updateMapelReq); err != nil {
+		return errors.BadRequest("invalid request")
+	}
 
+	updatedMapel, err := r.service.Update(c.Request.Context(), ID, updateMapelReq)
+	if err != nil {
+		return err
+	}
 
+	return c.WriteWithStatus(updatedMapel, http.StatusOK)
+}
+
+func (r resource) delete(c *routing.Context) error {
+	mapel, err := r.service.Delete(c.Request.Context(), c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	return c.Write(mapel)
+}

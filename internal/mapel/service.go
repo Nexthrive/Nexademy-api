@@ -14,9 +14,11 @@ import (
 )
 
 type Service interface {
-	Get(ctx context.Context, id_mapel string) (response.MapelResponse, error)	
+	Get(ctx context.Context, id_mapel string) (response.MapelResponse, error)
 	Query(ctx context.Context) (response.MapelResponse, error)
 	Create(ctx context.Context, input request.CreateMapelRequest) (response.MapelResponse, error)
+	Update(ctx context.Context, id string, req request.UpdateMapelRequest) (response.MapelResponse, error)
+	Delete(ctx context.Context, id string) (response.ResponseDel, error)
 }
 
 type service struct {
@@ -32,8 +34,8 @@ func NewService(repo Repository, logger log.Logger) Service {
 	return service{repo, logger}
 }
 
-func (s service) Get(ctx context.Context, id_mapel string) (response.MapelResponse, error) {
-	mapel, err := s.repo.Get(ctx, id_mapel)
+func (s service) Get(ctx context.Context, id string) (response.MapelResponse, error) {
+	mapel, err := s.repo.Get(ctx, id)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -44,7 +46,7 @@ func (s service) Get(ctx context.Context, id_mapel string) (response.MapelRespon
 	}
 
 	return response.MapelResponse{
-		Status:  "200",
+		Status:  200,
 		Message: "Query successful",
 		Data:    mapel,
 	}, nil
@@ -58,7 +60,7 @@ func (s service) Query(ctx context.Context) (response.MapelResponse, error) {
 	}
 
 	return response.MapelResponse{
-		Status:  "200",
+		Status:  200,
 		Message: "Query successful",
 		Data:    mapeles,
 	}, nil
@@ -71,7 +73,7 @@ func (s service) Create(ctx context.Context, input request.CreateMapelRequest) (
 	id := rand.Intn(900000) + 100000
 	idstr := strconv.Itoa(id)
 	newMapel := entity.Mapel{
-		Id_mapel:  idstr,
+		ID:        idstr,
 		Judul:     input.Judul,
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -83,9 +85,46 @@ func (s service) Create(ctx context.Context, input request.CreateMapelRequest) (
 	}
 
 	return response.MapelResponse{
-		Status:  "201",
+		Status:  201,
 		Message: "Create successful",
 		Data:    newMapel,
 	}, nil
 }
 
+func (s service) Update(ctx context.Context, id string, req request.UpdateMapelRequest) (response.MapelResponse, error) {
+	mapel, err := s.repo.Get(ctx, id)
+	if err != nil {
+		return response.MapelResponse{}, err
+	}
+	now := time.Now()
+	updateMapel := entity.Mapel{
+		ID:        mapel.ID,
+		Judul:     req.Judul,
+		UpdatedAt: now,
+	}
+
+	err = s.repo.Update(ctx, updateMapel)
+	if err != nil {
+		return response.MapelResponse{}, err
+	}
+
+	res := response.MapelResponse{
+		Status:  200,
+		Message: "User updated successfully",
+		Data:    updateMapel,
+	}
+	return res, nil
+
+}
+
+func (s service) Delete(ctx context.Context, id string) (response.ResponseDel, error) {
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return response.ResponseDel{}, err
+	}
+
+	res := response.ResponseDel{
+		Status:  200,
+		Message: "Data deleted successfully",
+	}
+	return res, nil
+}

@@ -13,6 +13,8 @@ type Repository interface {
 	Get(ctx context.Context, id_mapel string) (entity.Mapel, error)
 	Query(ctx context.Context) ([]entity.Mapel, error)
 	Create(ctx context.Context, mapel entity.Mapel) error
+	Update(ctx context.Context, req entity.Mapel) error
+	Delete(ctx context.Context, id string) error
 }
 
 type repository struct {
@@ -24,9 +26,9 @@ func NewRepo(db *dbcontext.DB, logger log.Logger) Repository {
 	return repository{db, logger}
 }
 
-func (r repository) Get(ctx context.Context, id_mapel string) (entity.Mapel, error) {
+func (r repository) Get(ctx context.Context, id string) (entity.Mapel, error) {
 	var mapel entity.Mapel
-	err := r.db.With(ctx).Select().From("mapel").Where(dbx.HashExp{"id_mapel": id_mapel}).One(&mapel)
+	err := r.db.With(ctx).Select().From("mapel").Where(dbx.HashExp{"id": id}).One(&mapel)
 	if err != nil {
 		return mapel, err
 	}
@@ -43,4 +45,14 @@ func (r repository) Create(ctx context.Context, mapel entity.Mapel) error {
 	return r.db.With(ctx).Model(&mapel).Insert()
 }
 
+func (r repository) Update(ctx context.Context, req entity.Mapel) error {
+	return r.db.With(ctx).Model(&req).Update()
+}
 
+func (r repository) Delete(ctx context.Context, id string) error {
+	mapel, err := r.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+	return r.db.With(ctx).Model(&mapel).Delete()
+}
