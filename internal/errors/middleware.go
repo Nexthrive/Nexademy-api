@@ -40,7 +40,7 @@ func Handler(logger log.Logger) routing.Handler {
 			}
 		}()
 		return c.Next()
-	}		
+	}
 }
 
 // buildErrorResponse builds an error response from an error.

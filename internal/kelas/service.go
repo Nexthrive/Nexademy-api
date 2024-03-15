@@ -31,20 +31,21 @@ func (s service) Create(ctx context.Context, input request.CreateKelasRequest) (
 	now := time.Now()
 
 	err := s.repo.Create(ctx, entity.Kelas{
-		ID_Kelas:  input.ID_Kelas,
-		Walas:     input.Walas,
+		ID_Kelas:   input.ID_Kelas,
+		Walas: input.Walas,
 		CreatedAt: now,
 		UpdatedAt: now,
 	})
 
 	if err != nil {
-		return response.EmptyResponse{}, err
+		return response.EmptyResponse{},err
 	}
+	
 
 	return response.EmptyResponse{
-		Status:  "201",
+		Status: "201",
 		Message: "Create successful",
-		Data:    nil,
+		Data: nil,
 	}, nil
 }
 
@@ -54,17 +55,17 @@ func (s service) Get(ctx context.Context, id_kelas string) (response.EmptyRespon
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return response.EmptyResponse{}, err
+				return response.EmptyResponse{}, err
 		}
 
 		return response.EmptyResponse{}, err
-	}
+}
 
 	return response.EmptyResponse{
-		Status:  "200",
-		Message: "Query successful",
-		Data:    kelas,
-	}, nil
+		Status:     "200",
+		Message:    "Query successful",
+		Data:       kelas,
+}, nil
 }
 
 // Query implements Service.
@@ -76,9 +77,9 @@ func (s service) Query(ctx context.Context) (response.EmptyResponse, error) {
 	}
 
 	return response.EmptyResponse{
-		Status:  "200",
-		Message: "Query successful",
-		Data:    kelases,
-	}, nil
+		Status:     "200",
+		Message:    "Query successful",
+		Data:       kelases,
+}, nil
 
 }
