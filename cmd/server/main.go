@@ -72,7 +72,6 @@ func main() {
 	}
 }
 
-
 // buildHandler sets up the HTTP routing and builds an HTTP handler.
 func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.Handler {
 	router := routing.New()
@@ -96,14 +95,14 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 	)
 
 	auth.RegisterHandlers(rg.Group(""),
-		auth.NewService(cfg.JWTSigningKey, cfg.JWTExpiration, logger),
+		auth.NewService(cfg.JWTSigningKey, cfg.JWTExpiration, logger, auth.NewRepo(db, logger)),
 		logger,
 	)
 
 	kelas.RegisterHandlers(rg.Group(""),
-	kelas.NewService(kelas.NewRepo(db, logger), logger),
-	authHandler, logger,
-)
+		kelas.NewService(kelas.NewRepo(db, logger), logger),
+		authHandler, logger,
+	)
 
 	return router
 }
